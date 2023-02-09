@@ -21,7 +21,6 @@ namespace UserAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetAllUserDetails()
         {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
             var results = await _context.UserDetails.ToListAsync();
             return Ok(results);
         }
