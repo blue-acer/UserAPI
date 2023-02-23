@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
-using UserAPI.Entities;
 using UserAPI.Interfaces;
 using UserAPI.Models;
 
 namespace UserAPI.Controllers
 {
-    
+
     [EnableCors("_allowSpecificOrigin")]
     [Route("api/[controller]")]
     [ApiController]
@@ -27,6 +23,10 @@ namespace UserAPI.Controllers
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetAllUserDetails()
         {
             var results = await _userDetailsRepository.GetAllUserDetailsData();
+            if (results == null)
+            {
+                return NotFound(results);
+            }
             return Ok(results);
         }
 
@@ -34,18 +34,20 @@ namespace UserAPI.Controllers
         [HttpGet("sp")]
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetAllUserDetailsSP()
         {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
+            //Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
 
             var results = await _userDetailsRepository.GetAllUserDetailsSPData();
+            if (results == null)
+            {
+                return NotFound(results);
+            }
             return Ok(results);
         }
 
         // GET: api/UserDetails/5
         [HttpGet("{id}")]
         public async Task<ActionResult<UserDetails>> GetUserDetails(long id)
-        {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
-
+        {         
             var userDetails = await _userDetailsRepository.GetUserDetailsData(id);
 
             if (userDetails == null)
@@ -59,31 +61,40 @@ namespace UserAPI.Controllers
         // GET: api/UserDetails/5
         [HttpGet("check/email")]
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetUserDetailsByEmail(string email)
-        {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
+        {            
 
             var results = await _userDetailsRepository.GetUserDetailsDataByEmail(email);
 
+            if (results == null)
+            {
+                return NotFound(results);
+            }
             return Ok(results);
         }
 
         [HttpPut("delete/{id}")]
         public async Task<ActionResult<int>> DeleteUser(long id)
-        {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
-
+        {            
             var results = await _userDetailsRepository.deleteUserData(id);
-            
+
+            if (results != 1)
+            {
+                return NotFound("This user was not found on our systems.");
+            }
             return Ok(results);
         }
 
 
         [HttpPost("addrecord")]
         public async Task<ActionResult<int>> AddUser(String fName, String lName, String email)
-        {
-            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
+        {            
+            var results = await _userDetailsRepository.addUserData(fName, lName, email);
 
-            var results = await _userDetailsRepository.addUserData(fName, lName, email);            return Ok(results);
+            if (results != 1)
+            {
+                return StatusCode(409, $"User already exists with email address: {email}");
+            }
+            return Ok(results);
         }
 
         //private bool UserDetailsExists(long id)
