@@ -1,27 +1,32 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
+using UserAPI.Entities;
+using UserAPI.Interfaces;
 using UserAPI.Models;
 
 namespace UserAPI.Controllers
 {
+    
     [EnableCors("_allowSpecificOrigin")]
     [Route("api/[controller]")]
     [ApiController]
     public class UserDetailsController : ControllerBase
     {
-        private readonly User_DBContext _context;
+        private IUserDetailsRepository _userDetailsRepository;
 
-        public UserDetailsController(User_DBContext context)
+        public UserDetailsController(IUserDetailsRepository userDetailsRepository)
         {
-            _context = context;
+            _userDetailsRepository = userDetailsRepository;
         }
 
         // GET: api/UserDetails
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetAllUserDetails()
         {
-            var results = await _context.UserDetails.ToListAsync();
+            var results = await _userDetailsRepository.GetAllUserDetailsData();
             return Ok(results);
         }
 
@@ -31,7 +36,7 @@ namespace UserAPI.Controllers
         {
             Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
 
-            var results = await _context.UserDetails.FromSqlRaw("sp_get_all_valid_records_aoife").ToListAsync();
+            var results = await _userDetailsRepository.GetAllUserDetailsSPData();
             return Ok(results);
         }
 
@@ -41,7 +46,7 @@ namespace UserAPI.Controllers
         {
             Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
 
-            var userDetails = await _context.UserDetails.FindAsync(id);
+            var userDetails = await _userDetailsRepository.GetUserDetailsData(id);
 
             if (userDetails == null)
             {
@@ -51,16 +56,26 @@ namespace UserAPI.Controllers
             return Ok(userDetails);
         }
 
+        // GET: api/UserDetails/5
+        [HttpGet("check/email")]
+        public async Task<ActionResult<IEnumerable<UserDetails>>> GetUserDetailsByEmail(string email)
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
+
+            var results = await _userDetailsRepository.GetUserDetailsDataByEmail(email);
+
+            return Ok(results);
+        }
+
         [HttpPut("delete/{id}")]
         public async Task<ActionResult<int>> DeleteUser(long id)
         {
             Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
 
-            var results = await _context.Database.ExecuteSqlRawAsync($"sp_change_status_code_aoife {id}");
+            var results = await _userDetailsRepository.deleteUserData(id);
             
             return Ok(results);
         }
-
 
 
         [HttpPost("addrecord")]
@@ -68,13 +83,12 @@ namespace UserAPI.Controllers
         {
             Response.Headers.Add("Access-Control-Allow-Origin", "http://localhost:4000");
 
-            var results = await _context.Database.ExecuteSqlRawAsync($"sp_insert_new_record_aoife '{fName}', '{lName}', '{email}'");
-            return Ok(results);
+            var results = await _userDetailsRepository.addUserData(fName, lName, email);            return Ok(results);
         }
 
-        private bool UserDetailsExists(long id)
-        {
-            return _context.UserDetails.Any(e => e.UserId == id);
-        }
+        //private bool UserDetailsExists(long id)
+        //{
+        //    return _context.UserDetails.Any(e => e.UserId == id);
+        //}
     }
 }

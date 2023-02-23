@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using UserAPI.Models;
 
-namespace UserAPI.Models
+namespace UserAPI.Entities
 {
     public partial class User_DBContext : DbContext
     {
@@ -59,8 +60,6 @@ namespace UserAPI.Models
                 entity.Property(e => e.ModifiedDate)
                     .HasColumnType("datetime")
                     .HasColumnName("modified_date");
-
-                entity.Property(e => e.StatusCode).HasColumnName("status_code");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -1,5 +1,9 @@
 using UserAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using UserAPI.Entities;
+using UserAPI.Repositories;
+using UserAPI.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,15 +24,19 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: AllowSpecificOrigin,
         policy =>
         {
-            policy.WithOrigins("https://localhost:4000")
+            policy
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .SetIsOriginAllowed(origin => true)
+            .AllowCredentials();
         });
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
 
 var app = builder.Build();
 
@@ -43,10 +51,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(AllowSpecificOrigin);
+
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseCors(AllowSpecificOrigin);
 
 app.Run();
