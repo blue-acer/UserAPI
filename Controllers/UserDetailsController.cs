@@ -61,7 +61,8 @@ namespace UserAPI.Controllers
         // GET: api/UserDetails/5
         [HttpGet("check/email")]
         public async Task<ActionResult<IEnumerable<UserDetails>>> GetUserDetailsByEmail(string email)
-        {            
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
 
             var results = await _userDetailsRepository.GetUserDetailsDataByEmail(email);
 
@@ -74,7 +75,9 @@ namespace UserAPI.Controllers
 
         [HttpPut("delete/{id}")]
         public async Task<ActionResult<int>> DeleteUser(long id)
-        {            
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+
             var results = await _userDetailsRepository.deleteUserData(id);
 
             if (results != 1)
@@ -87,7 +90,9 @@ namespace UserAPI.Controllers
 
         [HttpPost("addrecord")]
         public async Task<ActionResult<int>> AddUser(String fName, String lName, String email)
-        {            
+        {
+            Response.Headers.Add("Access-Control-Allow-Origin", "*");
+
             var results = await _userDetailsRepository.addUserData(fName, lName, email);
 
             if (results != 1)
