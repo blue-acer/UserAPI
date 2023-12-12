@@ -23,7 +23,7 @@ namespace UserAPI.Repositories
         public async Task<List<UserDetails>> GetAllUserDetailsSPData()
         {
 
-            return await _context.UserDetails.FromSqlRaw("sp_get_all_valid_records_aoife").ToListAsync();
+            return await _context.UserDetails.FromSqlRaw("sp_get_all_valid_records").ToListAsync();
         }
 
         public async ValueTask<UserDetails?> GetUserDetailsData(long id)
@@ -56,12 +56,12 @@ namespace UserAPI.Repositories
 
         public async Task<int> deleteUserData(long id)
         {
-            return await _context.Database.ExecuteSqlRawAsync($"sp_change_status_code_aoife {id}");
+            return await _context.Database.ExecuteSqlRawAsync($"sp_change_status_code {id}");
         }
 
         public async Task<int> addUserData(String fName, string lName, string email)
         {
-            return await _context.Database.ExecuteSqlRawAsync($"sp_insert_new_record_aoife '{fName}', '{lName}', '{email}'");
+            return await _context.Database.ExecuteSqlRawAsync($"sp_insert_new_record '{fName}', '{lName}', '{email}'");
         }
     }
 }
