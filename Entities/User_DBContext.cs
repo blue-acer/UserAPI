@@ -32,9 +32,9 @@ namespace UserAPI.Entities
                     .HasName("PK_user_id")
                     .IsClustered(false);
 
-                entity.ToTable("user_details_aoife");
+                entity.ToTable("user_details");
 
-                entity.HasIndex(e => e.EmailAddress, "uq_aoife_email_address")
+                entity.HasIndex(e => e.EmailAddress, "uq_email_address")
                     .IsUnique();
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
